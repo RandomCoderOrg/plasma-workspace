@@ -231,6 +231,11 @@ Item {
 
         pluggedIn: pmSource.data["AC Adapter"] !== undefined && pmSource.data["AC Adapter"]["Plugged in"]
 
+        activeProfile: pmSource.data["Power Profiles"] ? (pmSource.data["Power Profiles"]["Current Profile"] || "") : ""
+        profiles: pmSource.data["Power Profiles"] ? (pmSource.data["Power Profiles"]["Profiles"] || []) : []
+
+        inhibitionReason: pmSource.data["Power Profiles"] ? (pmSource.data["Power Profiles"]["Performance Inhibited Reason"] || "") : ""
+
         property int cookie1: -1
         property int cookie2: -1
         onPowermanagementChanged: {
@@ -268,6 +273,30 @@ Item {
                 });
             }
             batterymonitor.powermanagementDisabled = disabled
+        }
+
+        PlasmaCore.DataSource {
+            id: notificationSource
+            engine: "notifications"
+        }
+
+        onActivateProfileRequested: {
+            const service = pmSource.serviceForSource("PowerDevil");
+            let op = service.operationDescription("setPowerProfile");
+            op.profile = profile;
+
+            let job = service.startOperationCall(op);
+            job.finished.connect((job) => {
+                if (job.error) {
+                    var notifications = notificationSource.serviceForSource("notification")
+                    var operation = notifications.operationDescription("createNotification");
+                    operation.appName = i18n("Battery and Brightness")
+                    operation.appIcon = "dialog-error";
+                    operation.icon = "dialog-error"
+                    operation.body = i18n("Failed to activate %1 mode", profile)
+                    notifications.startOperationCall(operation);
+                }
+            });
         }
     }
 }
