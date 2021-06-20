@@ -236,7 +236,10 @@ ColumnLayout {
 
                     Layout.maximumHeight: notificationItem.maximumLineCount > 0
                                           ? (theme.mSize(font).height * notificationItem.maximumLineCount) : -1
-                    text: notificationItem.body
+
+                    // HACK LineEdit does not allow to specify linkColor
+                    text: "<style>a { color: " + PlasmaCore.Theme.linkColor + "; }</style>" + notificationItem.body
+
                     // Cannot do text !== "" because RichText adds some HTML tags even when empty
                     visible: notificationItem.body !== ""
                     onClicked: notificationItem.bodyClicked(mouse)
