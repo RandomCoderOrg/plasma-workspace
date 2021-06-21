@@ -453,7 +453,7 @@ QProcess *setupKSplash()
         const KConfig cfg(QStringLiteral("ksplashrc"));
         // the splashscreen and progress indicator
         KConfigGroup ksplashCfg = cfg.group("KSplash");
-        if (ksplashCfg.readEntry("Engine", QStringLiteral("KSplashQML")) == QLatin1String("KSplashQML")) {
+        if (ksplashCfg.readEntry("Engine", QStringLiteral("KSplashQML")) != QLatin1String("KSplashQML")) {
             p = new QProcess;
             p->start(QStringLiteral("ksplashqml"), {ksplashCfg.readEntry("Theme", QStringLiteral("Breeze"))});
         }
